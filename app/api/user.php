@@ -1,44 +1,32 @@
 <?php
 namespace App\api;
-require_once CORE . 'ControllerBase.php';
+// require_once CORE . 'ControllerBase.php';
 require_once MODEL . 'user.php';
 require_once SERVICE . 'user.php';
 require_once DATABASE . 'userEntity.php';
+require_once TRAITS . 'Authorize.php';
 
-class User extends \App\core\ControllerBase {
+// class User extends \App\core\ControllerBase {
+    class User {
+    use \App\traits\Authorize;
     private $model;
     private $userService;
 
+
     public function __construct( $reqInfo ) {
-        parent::__construct( $reqInfo[0] );     // $reqInfo[0] is reqType
-        try {
-            $this->model = new \App\model\User;
+        $this->reqType = $reqInfo[0];
 
-        } catch( \Exception $e ) {
-            $this->displayProblem( 'Exception: ' . $e->getMessage(), __FILE__, __LINE__);
-            return false;
-
-        } catch( \Error $er ) {
-            $this->displayProblem( 'Error: ' . $er->getMessage(), __FILE__, __LINE__ );
-            return false;
-        }
-        
-        try {
-            $this->userService = new \App\service\User( $this->reqType );
-
-        } catch( \Exception $e ) {
-            $this->displayProblem( 'Exception: ' . $e->getMessage(), __FILE__, __LINE__);
-            return false;
-
-        } catch( \Error $er ) {
-            $this->displayProblem( 'Error: ' . $er->getMessage(), __FILE__, __LINE__ );
-            return false;
-        }
+        // if EXECEPTION is thrown it's caught in index ON PURPOSE :)
+        $this->model = new \App\model\User;
+        $this->userService = new \App\service\User( $this->reqType );
 }
 
 
     public function getAllUsers() {
-        parent::AuthApi();
+        // parent::AuthApi();
+        if( $this->AuthApi() == false ) {
+            exit('Failed Authorization');
+        }
 
         $data = [];
         $this->model->getAllUsers( $data );     // $data passed as an OUT param
@@ -48,7 +36,8 @@ class User extends \App\core\ControllerBase {
 
 
     public function getUser() {
-        parent::AuthApi();
+        //parent::AuthApi();
+        $this->AuthApi();
 
         if( $this->reqType == POST ) {
             $id = $_POST['docid'];
@@ -58,9 +47,10 @@ class User extends \App\core\ControllerBase {
         }
     }
 
-    
+
     public function addUser() {
-        parent::AuthApi();
+        //parent::AuthApi();
+        $this->AuthApi();
 
         if( $this->reqType == POST ) {
             $user = new \database\userEntity;
@@ -79,7 +69,8 @@ class User extends \App\core\ControllerBase {
 
 
     public function updateUser() {
-        parent::AuthApi();
+        // parent::AuthApi();
+        $this->AuthApi();
         
         if( $this->reqType == POST ) {
             $id = $_POST['docid'];
@@ -91,7 +82,9 @@ class User extends \App\core\ControllerBase {
 
 
     public function deleteUserById() {
-        parent::AuthApi();
+        //parent::AuthApi();
+        $this->AuthApi();
+
         if( $this->reqType == POST ) {
             $id = $_POST['docid'];
 
@@ -111,7 +104,7 @@ class User extends \App\core\ControllerBase {
 
         $rslt = $this->userService->validateLogin( $user, $errors );
         if( $rslt == false ) {
-            header("HTTP/1.1 401 Invalid Login Data");
+            header("HTTP/1.1 406 Invalid Login Data");
             echo json_encode( $errors );
             return;
         }
@@ -121,7 +114,7 @@ class User extends \App\core\ControllerBase {
 
         $rslt = password_verify( $user->password, $data['Password'] ); // compare with encrypted password from db, plain text password is NEVER stored
         if( $rslt == false ) {
-            header("HTTP/1.1 401 Invalid Data");
+            header("HTTP/1.1 406 Invalid Data");
             echo 'Login Data Is Incorrect';
             return;
         }
@@ -134,26 +127,17 @@ class User extends \App\core\ControllerBase {
             'UserName' => $data['UserName']
         ];
         // send back jwt
-        try {
-            $jwt = parent::jwtEncode( $payload );
-
-        } catch( \Exception $e ) {
-            $this->displayProblem( 'Exception: ' . $e->getMessage(), __FILE__, __LINE__);
-            return;
-        } catch( \Error $er ) {
-            $this->displayProblem( 'Error: ' . $er->getMessage(), __FILE__, __LINE__ );
-            return;
-        }
-
-        header("HTTP/1.1 200 OK");
+         $jwt = $this->jwtEncode( $payload );
+        header('HTTP/1.1 200 OK');
         header( 'Content-Type: text/html; charset=UTF-8');
            echo $jwt;
     }
 
 
-    private function displayProblem( $msg, $file, $line ) {
+//    private function displayProblem( $msg, $file, $line ) {
+    //     require_once SERVICE . 'ErrorHandler.php';
+    //         \App\service\showError( $msg, $file, $line );
+    //         throw new Exception( $msg . ' '. $file_. ' ' . $line_);
+    // } //func
 
-        require_once SERVICE . 'ErrorHandler.php';
-            \App\service\Call404( $msg, $file, $line );
-    } //func
 } //class

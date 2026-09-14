@@ -8,7 +8,7 @@
         <div class="menuitem" onclick=getIt('pagesix');>Methodologies</div>
         <div class="menuitem" onclick=getIt('pagenine');>Problem Domain</div>
         <div class="menuitem" onclick=getIt('page_sdlc');>SDLC</div>
-        <div class="menuitem" onclick="location.href='glossy2'">Example Website</div>
+        <!-- <div class="menuitem" onclick="location.href='glossy2'">Example Website</div> -->
         <div class="menuitem" onclick="location.href='pageseven'">High Tech News</div>
         <div class="menuitem" onclick="location.href='contact'">Contact</div>
         <div class="menuitem" onclick=getIt('userList');>User List</div>

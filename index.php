@@ -10,9 +10,10 @@ const DATABASE = ROOT . DS . 'database' . DS;
 const CONTROLLER = APP . 'controller' . DS;
 const SERVICE = APP . 'service' . DS;
 const API = APP . 'api' . DS;
+const TRAITS = APP . 'traits' . DS;
 const GLOSSY = ROOT . 'glossy2'. DS;
 
-// can add any number of other REST RM types like PUT, DELETE etc
+// can add any number of other REST Request types like PUT, DELETE etc
 const GET = 1;
 const POST = 2;
 
@@ -21,12 +22,24 @@ const POST = 2;
 
 require_once CORE . 'Application.php';
 
-try {
-    new App\core\Application;
-} catch( \Exception $e ) {
+function exceptionHandler(Throwable $ex) {
+    $GLOBALS['IsHalted'] = true;
     require_once SERVICE . 'ErrorHandler.php';
-    \App\service\Call404( 'Exception: ' . $e->getMessage(), __FILE__, __LINE__ );
-} catch( \Error $er ) {
-    require_once SERVICE . 'ErrorHandler.php';
-    \App\service\Call404( 'Error: ' . $er->getMessage(), __FILE__, __LINE__ );
+    \App\service\showErrorEx( $ex );
+    exit();
 }
+set_exception_handler('exceptionHandler');
+
+
+function errorHandler( $errno, $errstr, $errfile, $errline ) {
+    $GLOBALS['IsHalted'] = true;
+    require_once SERVICE . 'ErrorHandler.php';
+    \App\service\showErrorOG( $errno, $errstr, $errfile, $errline );
+    exit();
+}
+set_error_handler('errorHandler');
+
+$GLOBALS['IsHalted'] = false;
+
+$App = new App\core\Application;
+$App->run();

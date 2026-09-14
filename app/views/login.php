@@ -4,11 +4,11 @@
         <form id='lform' action="" method="POST">
             <div class="form-group">
                 <label for="uname"><b>Username</b></label><br>
-                <input type="text" placeholder="Enter Username" id="uname" name="uname" autofocus required>
+                <input type="text" placeholder="Enter Username" id="uname" name="uname" autofocus required value='dddddd'>
             </div>
             <div class="form-group">
                 <label for="psw"><b>Password</b></label><br>
-                <input type="password" placeholder="Enter Password" id="psw" name="psw" required>
+                <input type="password" placeholder="Enter Password" id="psw" name="psw" required value='dddddddd'>
             </div>
             <div class="form-group">
                 <button id="lbtn" type="button" class="btn btn-primary" onclick="doAuth()">Login</button><br><br>
@@ -39,12 +39,10 @@ async function doAuth() {
                 console.log(res.status, res.statusText);
             }
         }
-        if( res.status >= 400 && res.status <= 499 ) { // data error
+        if( res.status >= 400 && res.status <= 599 ) { // data error
             const rdata = await res.text();
-            if( res.status == 401) {    // invalid login data
-                console.log( rdata );
-                alert( rdata );         // show errors
-            }
+            console.log( rdata );
+            alert( rdata );         // show errors
         }
 }
 </script>

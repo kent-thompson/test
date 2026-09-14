@@ -1,9 +1,10 @@
-webENGINE: A High-Performance MVC/S WebEngine / 'Framework' for Web Applications
+webENGINE: A High-Performance MVC/S Web Server / Web Engine / 'Framework' for Web Applications
 ------------
 Features
 + Convention Over Configuration
 + MVC/S Architecture
 + Object Oriented, High Performance, Efficient Algorithms
++ Automatic Responsive Web Design. Same code base works, from a phone to a desktop
 + Automatic Engine Level Class Auto-Loader, Incredibly Fast, Only Loads What's Needed for Each Request
 + Automatic Auto-Routing!
 + Automatic Inversion of Control

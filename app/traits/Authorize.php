@@ -1,59 +1,55 @@
 <?php
-namespace App\core;
+namespace App\traits;
 require_once 'vendor/autoload.php';
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
-// NOTE: this left as a programmatic reminder
-// $jwt = JWT::encode($payload, $this->secretKey, 'HS256');
-// $decoded = JWT::decode($jwt, new Key($this->secretKey, 'HS256'));
 
-class ControllerBase {
-    protected $mIsAuth = false;
-    protected $mPayload;
-    // JWT - put in config file or ENV
-    protected $secretKey = 'e6311e81b59543c8aae070c54a28b801'; // TODO
-    protected $reqType;
-    protected $IsHalted = false;
+trait Authorize 
+{
+    public $mIsAuth = false;
+    public $mPayload;
+    // JWT - put in config file or ENV TODO
+    public $secretKey = 'e6311e81b59543c8aae070c54a28b801'; // TODO
+    public $reqType;
+   // public $IsHalted = false;
 
-    public function __construct( $reqtype_ ) {
-        $this->reqType = $reqtype_;
-    }
+    // public function setReqType( $rType ) {
+    //     $this->reqType = $rType;
+    // }
 
-
-    protected function jwtEncode( &$payload ) {
+    public function jwtEncode( &$payload ) {
         return JWT::encode( $payload, $this->secretKey, 'HS256' );
     }
 
-    protected function AuthApi() {
-        if( $this->IsHalted == true) return;
-
+    public function AuthApi() {
         $headers = $this->getAuthorizationHeader();
         // HEADER: Get the access token from the header
         if( !empty($headers) ) {
             if( preg_match('/Bearer\s(\S+)/', $headers, $matches) ) {
                 try {
                     $this->mPayload = JWT::decode($matches[1], new Key($this->secretKey, 'HS256'));
+                    //$this->mPayload = JWT::decode($matches[1], new Key(7, 'HS256'));
 
                 } catch( LogicException $e ) {
                     // errors having to do with environmental setup or malformed JWT Keys
                     require_once SERVICE . 'ErrorHandler.php';
-                    \App\service\showError( 'NOT AUTHORIZED: ' . $e->getMessage(), __FILE__, __LINE__ );
-                    return;
+                    \App\service\showErrorEx( $e );
+                    return false;
                 } catch( UnexpectedValueException $e ) {
                     // errors having to do with JWT signature and claims
                     require_once SERVICE . 'ErrorHandler.php';
-                    \App\service\showError( 'NOT AUTHORIZED: ' . $e->getMessage(), __FILE__, __LINE__ );
-                    return;
+                    \App\service\showErrorEx( $e );
+                    return false;
                 } catch( \Exception $e ) {
                     require_once SERVICE . 'ErrorHandler.php';
-                    \App\service\showError( 'Exception: ' . $e->getMessage(), __FILE__, __LINE__ );
-                    return;
-                } catch( \Error $er ) {
+                    \App\service\showErrorEx( $e );
+                    return false;
+                 } catch( \Error $er ) {
                     require_once SERVICE . 'ErrorHandler.php';
-                    \App\service\showError( 'Error: ' . $er->getMessage(), __FILE__, __LINE__ );
-                    return;
+                    \App\service\showError( $er );
+                    return false;
                 }
-            }
+         }
             $this->mIsAuth = true;
             return true;
         }
@@ -62,7 +58,7 @@ class ControllerBase {
     }
 
 
-    protected function getAuthorizationHeader() {
+    private function getAuthorizationHeader() {
         $headers = null;
         if (isset($_SERVER['AUTHORIZATION'])) {
             $headers = trim($_SERVER["AUTHORIZATION"]);
@@ -81,10 +77,12 @@ class ControllerBase {
         return $headers;
     }
 
-    protected function AuthUI() {
-        if( $this->IsHalted == true) return;
-
-        switch( $this->reqType ) {
+    public function AuthUI() {
+        //switch( $this->reqType ) {
+        //switch( $GLOBALS['AppObj']->_ReqType ) {
+            // TODO
+            $temp = $GLOBALS['ReqType'];
+        switch( $GLOBALS['ReqType'] ) {
             case GET:
                 $token = $_GET['jwt'];
                 break;
@@ -97,19 +95,20 @@ class ControllerBase {
             try {
                 $this->mPayload = JWT::decode($token, new Key($this->secretKey, 'HS256'));
 
+                // TODO: more work
                 } catch( LogicException $e ) {
                     // errors having to do with environmental setup or malformed JWT Keys
                     require_once SERVICE . 'ErrorHandler.php';
-                    \App\service\showError( 'NOT AUTHORIZED: ' . $e->getMessage(), __FILE__, __LINE__ );
+                    \App\service\showErrorEx( 'NOT AUTHORIZED: ' . $e->getMessage(), __FILE__, __LINE__ );
                     return;
                 } catch( UnexpectedValueException $e ) {
                     // errors having to do with JWT signature and claims
                     require_once SERVICE . 'ErrorHandler.php';
-                    \App\service\showError( 'NOT AUTHORIZED: ' . $e->getMessage(), __FILE__, __LINE__ );
+                    \App\service\showErrorEx( 'NOT AUTHORIZED: ' . $e->getMessage(), __FILE__, __LINE__ );
                     return;
                 } catch( \Exception $e ) {
                     require_once SERVICE . 'ErrorHandler.php';
-                    \App\service\showError( 'Exception: ' . $e->getMessage(), __FILE__, __LINE__ );
+                    \App\service\showErrorEx( 'Exception: ' . $e->getMessage(), __FILE__, __LINE__ );
                     return;
                 } catch( \Error $er ) {
                     require_once SERVICE . 'ErrorHandler.php';
@@ -123,15 +122,15 @@ class ControllerBase {
         }
     }
 
-    protected function getIsAuth() {
+    public function getIsAuth() {
         if( $this->mIsAuth ) {
             return true;
         } else {
             return false;
         }
-    }    
+    }
 
-    protected function setPayload( &$data) {
+    public function setPayload( &$data) {
         header("Access-Control-Allow-Origin: *");
         header("Content-Type: application/json; charset=UTF-8");
         header("Access-Control-Allow-Methods: GET, POST");

@@ -1,42 +1,48 @@
 <?php
 namespace App\controller;
-require_once CORE . 'ControllerBase.php';
+// require_once CORE . 'ControllerBase.php';
 require_once MODEL . 'user.php';
 require_once SERVICE . 'user.php';
 require_once DATABASE . 'userEntity.php';
+require_once TRAITS . 'Authorize.php';
 
 // SERVER SIDE RENDER 
 // NOTE: When using "mini-SPAs" and Ajax / Json based API these don't make much sense anymore. That's why they are not developed. But COULD be if needed.
-class User extends \App\core\ControllerBase {
+//class User extends \App\core\ControllerBase {
+class User {
+    use \App\traits\Authorize;
     private $model;
     private $userService;
+    //private $reqType;
 
     public function __construct( $reqInfo ) {
-        parent::__construct( $reqInfo[0] );     // $reqInfo[0] is reqType
-        try {
+        //parent::__construct( $reqInfo[0] );     // $reqInfo[0] is reqType
+        $this->reqType = $this->reqInfo[0];
+        //try {
             $this->model = new \App\model\User;
-        } catch( \Exception $e ) {
-            $this->displayProblem( 'Exception: ' . $e->getMessage(), __FILE__, __LINE__);
-            return;
-        } catch( \Error $er ) {
-            $this->displayProblem( 'Error: ' . $er->getMessage(), __FILE__, __LINE__ );
-            return;
-        }
-        try {
-            $this->userService = new \App\service\User( $this->reqType );
+        // } catch( \Exception $e ) {
+        //     $this->displayProblem( 'Exception: ' . $e->getMessage(), __FILE__, __LINE__);
+        //     return;
+        // } catch( \Error $er ) {
+        //     $this->displayProblem( 'Error: ' . $er->getMessage(), __FILE__, __LINE__ );
+        //     return;
+        // }
+        // try {
+        //     $this->userService = new \App\service\User( $this->reqType );
 
-        } catch( \Exception $e ) {
-            $this->displayProblem( 'Exception: ' . $e->getMessage(), __FILE__, __LINE__);
-            return;
-        } catch( \Error $er ) {
-            $this->displayProblem( 'Error: ' . $er->getMessage(), __FILE__, __LINE__ );
-            return;
-        }
+        // } catch( \Exception $e ) {
+        //     $this->displayProblem( 'Exception: ' . $e->getMessage(), __FILE__, __LINE__);
+        //     return;
+        // } catch( \Error $er ) {
+        //     $this->displayProblem( 'Error: ' . $er->getMessage(), __FILE__, __LINE__ );
+        //     return;
+       // }
 }
 
 
     public function getAllUsers() {
-        parent::AuthUI();
+        //parent::AuthUI();
+        $this->AuthUI();
 
         $data = [];
         $this->model->getAllUsers( $data );
@@ -69,7 +75,9 @@ class User extends \App\core\ControllerBase {
 
 
     public function updateUser() {
-        parent::AuthUI();
+        //parent::AuthUI();
+        $this->AuthUI();
+
         if( $this->reqType == POST ) {
             $fname = trim( $_POST['fname'] );
             $lname = trim( $_POST['lname'] );
@@ -101,7 +109,7 @@ class User extends \App\core\ControllerBase {
 
     private function displayProblem( $msg, $file, $line ) {
         require_once SERVICE . 'ErrorHandler.php';
-            \App\service\Call404( $msg, $file, $line );
+            \App\service\showError( $msg, $file, $line );
     }
 
 }//class

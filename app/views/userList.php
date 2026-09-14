@@ -123,17 +123,21 @@ $(document).ready(function() {
             dataType:'json',
             url: location.origin + '/api/user/getAllUsers',
             dataSrc: "",
-            headers: {"Authorization": 'Bearer '+ sessionStorage.getItem('ktc_token')}
+            headers: {"Authorization": 'Bearer '+ sessionStorage.getItem('ktc_token')},
+            error: function (xhr, error, code) {
+                var err = xhr.statusText +  ', ' + xhr.responseText;
+                alert( err );
+                console.log(xhr, code); },
         },
         "columns": [
-            { "data": "UserID" },
-            { "data": "UserName" },
-            { "data": "FirstName" },
-            { "data": "LastName" },
-            { "data": "Birthday" },
-            { "data": "Email" },
-            { "data": "Password" }
-        ],
+        { "data": "UserID" },
+        { "data": "UserName" },
+        { "data": "FirstName" },
+        { "data": "LastName" },
+        { "data": "Birthday" },
+        { "data": "Email" },
+        { "data": "Password" }
+    ],
         "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
         "pageLength": 25
     });

@@ -11,10 +11,27 @@ class Application {
 
 
     public function __construct() {
-        $this->setReqMethod();
-        $this->parseURL();
-        $this->invokeClass();
-        $this->invokeMethod();
+        $GLOBALS['AppObj'] = $this;
+    }
+
+
+    public function run() {
+        //try {
+            $this->setReqMethod();
+            $this->parseURL();
+            $this->invoke();
+
+        // } catch( \ErrorException $er ) {
+        //     //$this->displayProblem( 'Error: ' . $er->getMessage(), $er->getFile(),$er->getLine() );
+        //     $this->displayProblem( $er );
+        // } catch( \Exception $e ) {
+        //     //$this->displayProblem( 'Exception: ' . $e->getMessage(), $e->getFile(), $e->getLine() );
+        //     $this->displayProblem( $e );
+        // } catch( \Error $err ) {
+        //      //$this->displayProblem( 'ERROR: ' . $err->getMessage(),  $err->getFile(),$err->getLine() );
+        //      $this->displayProblem( $err );
+        //  }
+        //return true;
     }
 
 
@@ -23,9 +40,14 @@ class Application {
         $val = strtoupper( $_SERVER['REQUEST_METHOD'] );
         switch( $val ) {
             case 'GET':
+                //$GLOBALS['AppObj']->_ReqType = GET;
+                $GLOBALS['ReqType'] = GET;
+
                 $this->params[0] = GET;
                 break;
             case 'POST':
+                //$GLOBALS['AppObj']->_ReqType = POST;
+                $GLOBALS['ReqType'] = POST;
                     $this->params[0] = POST;
                 break;
         }
@@ -74,56 +96,53 @@ class Application {
     }
 
 
-    protected function invokeClass() {
-         // auto class loader from file path, controller class gets instantiated and action / function invoked
-        if( file_exists($this->controllerPath) ) {
-            try {
+    // Exceptions / Errors are now caught by global handlers in index.php
+    protected function invoke() {
+        global $gAction;
+//        try {
+            // auto class loader from file path, controller class gets instantiated and action / function invoked
+            if( file_exists($this->controllerPath) ) {
                 require_once $this->controllerPath;
                 $this->controller = new $this->controller( $this->params );
-
-            } catch( \Exception $e ) {
-                $this->displayProblem( 'Exception: ' . $e->getMessage(), __FILE__, __LINE__ );
-                return false;
-            } catch( \Error $er ) {
-                $isErrror = true;                
-                $this->displayProblem( 'Error: ' . $er->getMessage(), __FILE__, __LINE__ );
+            } else {
+                $this->displayProblem( 'Error: Controller ' . $this->controller . ' Missing', __FILE__, __LINE__ );
                 return false;
             }
-        } else {
-            $this->displayProblem( 'Error: Controller ' . $this->controller . ' Missing', __FILE__, __LINE__ );
-             return false;
-        }
-    }
-
-
-    protected function invokeMethod() {
-        global $gAction;
-        // function / "action" called
-        if( method_exists($this->controller, $gAction) ) {
-            try {
+    
+            if( method_exists($this->controller, $gAction) ) {
                 // invoke an instance method. below done the 'old' way, commented out
                 // call_user_func_array( [$this->controller, $this->action], $this->params ); DO NOT become Emotionally invested in your code. This allows discussion and rapid change.
                 // $gAction = $this->action; ugh... not on every request
 
+                if ( $GLOBALS['IsHalted'] == false ) {
                     $this->controller->$gAction( $this->params );    // The MAGIC - extreamly fast
-
-            } catch( \Exception $e ) {
-                $this->displayProblem( 'Exception: ' . $e->getMessage(), __FILE__, __LINE__ );
-                return false;
-            } catch( \Error $er ) {
-                $this->displayProblem( 'Error: ' . $er->getMessage(), __FILE__, __LINE__ );
+                }
+                
+            } else {
+                $classObj = new \ReflectionClass( $this->controller );
+                $this->displayProblem( 'Error: ' . $classObj->getName() . '\\' . $gAction . ' Function Missing',  __FILE__, __LINE__ );
                 return false;
             }
-        } else {
-            $classObj = new \ReflectionClass( $this->controller );
-            $this->displayProblem( 'Error: ' . $classObj->getName() . '\\' . $gAction . ' Missing',  __FILE__, __LINE__ );
-            return false;
-        }
+        // } catch( \Exception $e ) {
+        //     $IsHalted = true;
+        //     $str = 'Exception: ' . $e->getMessage() . ' File: ' . __FILE__ . ' Line: ' . __LINE__;
+        //     throw new Exception( $str );
+        //     //$this->displayProblem( 'Exception: ' . $e->getMessage(), __FILE__, __LINE__ );
+        //     return false;
+        // } catch( \Error $er ) {
+        //     //$str = 'Error: ' . $er->getMessage() . ' File: ' . __FILE__ . ' Line: ' . __LINE__;
+        //     $IsHalted = true;
+        //     throw new \ErrorException( $er->getMessage() );
+        //     //$this->displayProblem( 'Error: ' . $er->getMessage(), __FILE__, __LINE__ );
+        //     return false;
+        // }
         return true;
     }
 
-    public function displayProblem( $msg, $file, $line ) {
+
+    public function displayProblem( $ex ) {
         require_once SERVICE . 'ErrorHandler.php';
-        \App\service\Call404( $msg, $file, $line );
+        \App\service\showError( $ex->getMessage(), $ex->getFile(), $ex->getLine() );
+        exit();
     }
 }

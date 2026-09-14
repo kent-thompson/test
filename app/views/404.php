@@ -17,6 +17,6 @@ At Line: <?php echo $GLOBALS['error_line'] ?><br><br>
     Searching for Frim Footing,<br>
     The Stone is Gone...</i><br>
 <div id="pb">We Must <a href="javascript:javascript:void(0)" onClick="javascript:history.back()">Return to Shore.</a> 
-    <img = src="../res/img/3d-emoji-sm.png"/></div>
+    <img = src="../../res/img/3d-emoji-sm.png"/></div>
 </body>
 </html>

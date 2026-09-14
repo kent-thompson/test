@@ -1,12 +1,16 @@
 <?php
 namespace App\controller;
-require_once CORE . 'ControllerBase.php';
+require_once TRAITS . 'Authorize.php';
+//require_once CORE . 'ControllerBase.php';
 
 // CONTROLLER
-class Home extends \App\core\ControllerBase {
+//class Home extends \App\core\ControllerBase {
+    
+    class Home {
+        use \App\traits\Authorize;  // also has reqType
 
     public function __construct( $reqInfo ) {
-        parent::__construct( $reqInfo[0] ); // $reqInfo[0] is reqType
+        $this->reqType = $reqInfo[0];   // $reqInfo[0] is reqType
     }
 
     public function index() {
@@ -18,7 +22,8 @@ class Home extends \App\core\ControllerBase {
     }
 
     public function indexAuth() {
-        parent::AuthUI();
+        //parent::AuthUI();
+        $this->AuthUI();
         require_once VIEWS . 'head_begin.php';
         require_once VIEWS . 'top_content.php';
         require_once VIEWS . 'sidebar.php';
@@ -26,12 +31,12 @@ class Home extends \App\core\ControllerBase {
         require_once VIEWS . 'footer.php';
     }
 
-    public function login( $reqInfo ) {
+    public function login() {
         include_once VIEWS . 'head_begin.php';
         include_once VIEWS . 'top_content.php';
         include_once VIEWS . 'tinySidebar.php';
         include_once VIEWS . 'login.php';
-        include_once VIEWS . 'footer.php';        
+        include_once VIEWS . 'footer.php';
     }
 
     public function new_user() {
@@ -42,7 +47,7 @@ class Home extends \App\core\ControllerBase {
     }
 
     public function pagetwo( $reqInfo ) {
-        parent::AuthUI();
+        $this->AuthUI();
         include_once VIEWS . 'head_begin.php';
         include_once VIEWS . 'top_content.php';
         include_once VIEWS . 'sidebar.php';
@@ -51,7 +56,7 @@ class Home extends \App\core\ControllerBase {
      }
 
     public function pagethree() {
-        parent::AuthUI();
+        $this->AuthUI();
         include_once VIEWS . 'head_begin.php';
         include_once VIEWS . 'top_content.php';
         include_once VIEWS . 'sidebar.php';
@@ -60,7 +65,7 @@ class Home extends \App\core\ControllerBase {
     }
 
     public function pagefour() {
-        parent::AuthUI();
+        $this->AuthUI();
         include_once VIEWS . 'head_begin.php';
         include_once VIEWS . 'top_content.php';
         include_once VIEWS . 'sidebar.php';
@@ -69,7 +74,7 @@ class Home extends \App\core\ControllerBase {
     }
 
     public function pagefive() {
-        parent::AuthUI();
+        $this->AuthUI();
         include_once VIEWS . 'head_begin.php';
         include_once VIEWS . 'top_content.php';
         include_once VIEWS . 'sidebar.php';
@@ -78,7 +83,7 @@ class Home extends \App\core\ControllerBase {
     }
 
     public function pagesix() {
-        parent::AuthUI();
+        $this->AuthUI();
         include_once VIEWS . 'head_begin.php';
         include_once VIEWS . 'top_content.php';
         include_once VIEWS . 'sidebar.php';
@@ -87,7 +92,7 @@ class Home extends \App\core\ControllerBase {
     }
 
     public function pagenine() {
-        parent::AuthUI();
+        $this->AuthUI();
         include_once VIEWS . 'head_begin.php';
         include_once VIEWS . 'top_content.php';
         include_once VIEWS . 'sidebar.php';
@@ -96,7 +101,7 @@ class Home extends \App\core\ControllerBase {
     }
 
     public function page_sdlc() {
-        parent::AuthUI();
+        $this->AuthUI();
         include_once VIEWS . 'head_begin.php';
         include_once VIEWS . 'top_content.php';
         include_once VIEWS . 'sidebar.php';
@@ -123,11 +128,11 @@ class Home extends \App\core\ControllerBase {
         include_once VIEWS . 'top_content.php';
         include_once VIEWS . 'sidebar.php';
         include_once VIEWS . 'contact.php';
-        include_once VIEWS . 'footer.php';        
+        include_once VIEWS . 'footer.php';
     }
 
     public function userlist() {
-        parent::AuthUI();
+        $this->AuthUI();
         require_once VIEWS . 'head_begin.php';
         //require_once VIEWS . 'top_content.php';
         //require_once VIEWS . 'sidebar.php';
